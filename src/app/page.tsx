@@ -12,6 +12,8 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<'ticker' | 'confidence' | 'price'>('ticker');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
+  const [compact, setCompact] = useState(false);
+
   useEffect(() => {
     fetchRecommendations();
   }, []);
@@ -62,62 +64,73 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-8 md:space-y-12">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-4 text-center md:text-left">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white">
+    <div className="space-y-6 md:space-y-10">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-2 text-center md:text-left">
+          <h1 className="text-3xl md:text-6xl font-extrabold tracking-tight text-white">
             Daily <span className="bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">Market Picks</span>
           </h1>
-          <p className="text-sm md:text-lg text-white/40 max-w-xl">
+          <p className="text-xs md:text-lg text-white/40 max-w-xl">
             AI-driven technical signals for IDX top-tier stocks. 
-            Updated based on RSI, SMA, and MACD momentum.
           </p>
         </div>
         
-        <button 
-          onClick={handleFetchAnalysis}
-          disabled={fetching}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] whitespace-nowrap"
-        >
-          <RefreshCw size={20} className={fetching ? 'animate-spin' : ''} />
-          {fetching ? 'Analyzing...' : 'Run Analysis'}
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setCompact(!compact)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white/60 hover:text-white rounded-xl transition-all text-xs font-bold"
+          >
+            {compact ? 'Detailed View' : 'Compact View'}
+          </button>
+          <button 
+            onClick={handleFetchAnalysis}
+            disabled={fetching}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] whitespace-nowrap text-xs"
+          >
+            <RefreshCw size={14} className={fetching ? 'animate-spin' : ''} />
+            {fetching ? 'Analyzing...' : 'Run Analysis'}
+          </button>
+        </div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-4 p-2 bg-white/5 rounded-2xl border border-white/5 overflow-x-auto">
-        <span className="text-xs font-bold text-white/40 uppercase tracking-widest pl-2 pr-4 border-r border-white/10">Sort By</span>
-        {[
-          { label: 'Name', field: 'ticker' },
-          { label: 'Confidence', field: 'confidence' },
-          { label: 'Price', field: 'price' }
-        ].map((item) => (
-          <button
-            key={item.field}
-            onClick={() => toggleSort(item.field as any)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              sortBy === item.field ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
-            }`}
-          >
-            {item.label}
-            {sortBy === item.field && <ArrowUpDown size={14} className={sortOrder === 'desc' ? 'rotate-180 transition-transform' : ''} />}
-          </button>
-        ))}
+      <div className="flex items-center gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar scroll-smooth">
+        <div className="flex-shrink-0 flex items-center h-8 px-3 border-r border-white/10">
+          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Sort</span>
+        </div>
+        <div className="flex gap-2 py-0.5">
+          {[
+            { label: 'Name', field: 'ticker' },
+            { label: 'Confidence', field: 'confidence' },
+            { label: 'Price', field: 'price' }
+          ].map((item) => (
+            <button
+              key={item.field}
+              onClick={() => toggleSort(item.field as any)}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                sortBy === item.field ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              {item.label}
+              {sortBy === item.field && <ArrowUpDown size={12} className={sortOrder === 'desc' ? 'rotate-180 transition-transform' : ''} />}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={compact ? "flex flex-col gap-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"}>
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-64 bg-white/5 animate-pulse rounded-3xl border border-white/5" />
+            <div key={i} className={`${compact ? 'h-16' : 'h-64'} bg-white/5 animate-pulse rounded-2xl border border-white/5`} />
           ))}
         </div>
       ) : sortedRecommendations.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-20 border border-dashed border-white/10 bg-white/5 rounded-3xl text-center">
-          <p className="text-white/60 mb-6">No recommendations found. Run the analysis to get started.</p>
+          <p className="text-white/60 mb-6">No recommendations found.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={compact ? "flex flex-col gap-3" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"}>
           {sortedRecommendations.map((rec: any) => (
-            <StockCard key={rec.id} rec={rec} />
+            <StockCard key={rec.id} rec={rec} compact={compact} />
           ))}
         </div>
       )}

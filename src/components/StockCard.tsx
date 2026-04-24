@@ -14,9 +14,36 @@ interface StockCardProps {
     stop_loss: number;
     explanation: string;
   };
+  compact?: boolean;
 }
 
-export default function StockCard({ rec }: StockCardProps) {
+export default function StockCard({ rec, compact = false }: StockCardProps) {
+  if (compact) {
+    return (
+      <Link 
+        href={`/stock/${rec.ticker}`}
+        className="group flex items-center justify-between p-4 bg-[#111] border border-white/5 hover:border-white/10 rounded-2xl transition-all"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/5 border border-white/5 font-bold text-sm">
+            {rec.ticker.split('.')[0]}
+          </div>
+          <div>
+            <h3 className="font-bold text-white text-sm">{rec.ticker}</h3>
+            <p className="text-xs text-white/40">{formatCurrency(rec.price)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden sm:block">
+            <p className="text-[10px] text-white/40 uppercase">Conf.</p>
+            <p className="text-xs font-mono text-white/80">{rec.confidence}%</p>
+          </div>
+          <SignalBadge signal={rec.signal} />
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <div className="group relative bg-[#111] border border-white/5 hover:border-white/10 rounded-2xl p-6 transition-all duration-300 overflow-hidden">
       <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">

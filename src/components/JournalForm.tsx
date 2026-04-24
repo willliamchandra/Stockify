@@ -74,12 +74,14 @@ export default function JournalForm({ stock }: JournalFormProps) {
         disabled={loading || saved}
         className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
           saved 
-            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
-            : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+            ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+            : loading
+              ? 'bg-emerald-500/50 text-white/50 cursor-not-allowed'
+              : 'bg-emerald-500 hover:bg-emerald-600 text-white'
         }`}
       >
-        {saved ? <Check size={18} /> : <Save size={18} />}
-        {saved ? 'Saved to Journal' : 'Save Action'}
+        {loading ? <RefreshCw size={18} className="animate-spin" /> : saved ? <Check size={18} /> : <Save size={18} />}
+        {loading ? 'Saving Entry...' : saved ? 'Successfully Saved!' : 'Save Action'}
       </button>
     </div>
   );
