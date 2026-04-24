@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Check } from 'lucide-react';
+import { Save, Check, RefreshCw } from 'lucide-react';
 
 interface JournalFormProps {
   stock: {
