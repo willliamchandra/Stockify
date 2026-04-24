@@ -23,7 +23,13 @@ async function getStockData(ticker: string) {
       throw new Error('No data found');
     }
 
-    const history = result.quotes.filter(q => q.date && q.close !== null && q.close !== undefined);
+    const history = result.quotes.filter(q => 
+      q.date && 
+      q.open !== null && q.open !== undefined &&
+      q.high !== null && q.high !== undefined &&
+      q.low !== null && q.low !== undefined &&
+      q.close !== null && q.close !== undefined
+    );
   
   const prices = history.map(h => h.close as number);
   const sma20 = SMA.calculate({ values: prices, period: 20 });
@@ -31,10 +37,10 @@ async function getStockData(ticker: string) {
 
   const chartData = history.map(h => ({
     time: h.date.toISOString().split('T')[0],
-    open: h.open,
-    high: h.high,
-    low: h.low,
-    close: h.close,
+    open: h.open as number,
+    high: h.high as number,
+    low: h.low as number,
+    close: h.close as number,
   }));
 
   const sma20Data = sma20.map((val, i) => ({

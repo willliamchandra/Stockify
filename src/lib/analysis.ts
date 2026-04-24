@@ -45,7 +45,13 @@ export async function analyzeStock(ticker: string): Promise<StockRecommendation 
     period1.setMonth(period1.getMonth() - 6); // 6 months of data
     
     const result = await yahooFinance.chart(ticker, { period1 });
-    const history = result.quotes.filter(q => q.date && q.close !== null && q.close !== undefined);
+    const history = result.quotes.filter(q => 
+      q.date && 
+      q.open !== null && q.open !== undefined &&
+      q.high !== null && q.high !== undefined &&
+      q.low !== null && q.low !== undefined &&
+      q.close !== null && q.close !== undefined
+    );
     
     if (!history || history.length < 50) return null;
 
