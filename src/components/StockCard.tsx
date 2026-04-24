@@ -101,16 +101,6 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
         </div>
         <div className="flex flex-col items-end gap-2">
           <SignalBadge signal={rec.signal} />
-          <button
-            onClick={handleQuickJournal}
-            disabled={loading || saved}
-            className={`p-2.5 rounded-xl border transition-all ${
-              saved ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'
-            }`}
-            title="Quick Save to Journal"
-          >
-            {loading ? <RefreshCw size={18} className="animate-spin" /> : saved ? <Check size={18} /> : <BookPlus size={18} />}
-          </button>
         </div>
       </div>
 
@@ -140,12 +130,24 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
         </p>
       </div>
 
-      <Link 
-        href={`/stock/${rec.ticker}`}
-        className="block w-full py-3 text-center text-sm font-bold text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all"
-      >
-        View Analysis & Chart
-      </Link>
+      <div className="flex gap-2">
+        <Link 
+          href={`/stock/${rec.ticker}`}
+          className="flex-1 py-3 text-center text-sm font-bold text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all"
+        >
+          View Analysis & Chart
+        </Link>
+        <button
+          onClick={handleQuickJournal}
+          disabled={loading || saved}
+          className={`px-4 rounded-xl border transition-all ${
+            saved ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'
+          }`}
+          title="Quick Save to Journal"
+        >
+          {loading ? <RefreshCw size={18} className="animate-spin" /> : saved ? <Check size={18} /> : <BookPlus size={18} />}
+        </button>
+      </div>
     </div>
   );
 }

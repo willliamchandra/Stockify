@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import StockCard from '@/components/StockCard';
 import { supabase } from '@/lib/supabase';
-import { RefreshCw, ArrowUpDown } from 'lucide-react';
+import { RefreshCw, ArrowUpDown, Search } from 'lucide-react';
 
 export default function Home() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
@@ -14,6 +14,8 @@ export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const [compact, setCompact] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchRecommendations();
@@ -48,7 +50,11 @@ export default function Home() {
     }
   };
 
-  const sortedRecommendations = [...recommendations].sort((a, b) => {
+  const filteredRecommendations = recommendations.filter(rec => 
+    rec.ticker.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedRecommendations = [...filteredRecommendations].sort((a, b) => {
     let valA = a[sortBy];
     let valB = b[sortBy];
 
@@ -72,7 +78,7 @@ export default function Home() {
   return (
     <div className="space-y-6 md:space-y-10">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-2 text-center md:text-left">
+        <div className="space-y-2 text-center md:text-left hidden md:block">
           <h1 className="text-3xl md:text-6xl font-extrabold tracking-tight text-white">
             Daily <span className="bg-gradient-to-r from-emerald-400 to-emerald-600 bg-clip-text text-transparent">Market Picks</span>
           </h1>
@@ -81,21 +87,33 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setCompact(!compact)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white/60 hover:text-white rounded-xl transition-all text-xs font-bold"
-          >
-            {compact ? 'Detailed' : 'Compact'}
-          </button>
-          <button 
-            onClick={handleFetchAnalysis}
-            disabled={fetching}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] whitespace-nowrap text-xs"
-          >
-            <RefreshCw size={14} className={fetching ? 'animate-spin' : ''} />
-            {fetching ? 'Analyzing...' : 'Run Analysis'}
-          </button>
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" size={16} />
+            <input 
+              type="text"
+              placeholder="Search ticker..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/50 transition-all"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setCompact(!compact)}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white/60 hover:text-white rounded-xl transition-all text-xs font-bold"
+            >
+              {compact ? 'Detailed' : 'Compact'}
+            </button>
+            <button 
+              onClick={handleFetchAnalysis}
+              disabled={fetching}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] whitespace-nowrap text-xs"
+            >
+              <RefreshCw size={14} className={fetching ? 'animate-spin' : ''} />
+              {fetching ? 'Analyzing...' : 'Run Analysis'}
+            </button>
+          </div>
         </div>
       </header>
 
