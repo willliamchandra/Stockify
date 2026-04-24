@@ -9,13 +9,17 @@ export default function Home() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
-  const [sortBy, setSortBy] = useState<'ticker' | 'confidence' | 'price'>('ticker');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortBy, setSortBy] = useState<'ticker' | 'confidence' | 'signal'>('confidence');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const [compact, setCompact] = useState(false);
 
   useEffect(() => {
     fetchRecommendations();
+    const handleScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const fetchRecommendations = async () => {
@@ -48,13 +52,13 @@ export default function Home() {
     let valA = a[sortBy];
     let valB = b[sortBy];
 
-    if (sortBy === 'ticker') {
+    if (sortBy === 'ticker' || sortBy === 'signal') {
       return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
     }
     return sortOrder === 'asc' ? valA - valB : valB - valA;
   });
 
-  const toggleSort = (field: 'ticker' | 'confidence' | 'price') => {
+  const toggleSort = (field: 'ticker' | 'confidence' | 'price' | 'signal') => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -62,6 +66,8 @@ export default function Home() {
       setSortOrder('asc');
     }
   };
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
     <div className="space-y-6 md:space-y-10">
@@ -80,7 +86,7 @@ export default function Home() {
             onClick={() => setCompact(!compact)}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white/60 hover:text-white rounded-xl transition-all text-xs font-bold"
           >
-            {compact ? 'Detailed View' : 'Compact View'}
+            {compact ? 'Detailed' : 'Compact'}
           </button>
           <button 
             onClick={handleFetchAnalysis}
@@ -100,8 +106,8 @@ export default function Home() {
         <div className="flex gap-2 py-0.5">
           {[
             { label: 'Name', field: 'ticker' },
+            { label: 'Signal', field: 'signal' },
             { label: 'Confidence', field: 'confidence' },
-            { label: 'Price', field: 'price' }
           ].map((item) => (
             <button
               key={item.field}
@@ -133,6 +139,15 @@ export default function Home() {
             <StockCard key={rec.id} rec={rec} compact={compact} />
           ))}
         </div>
+      )}
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 p-4 bg-emerald-500 text-white rounded-full shadow-2xl hover:bg-emerald-600 transition-all z-50 animate-in fade-in slide-in-from-bottom-4"
+        >
+          <ArrowUpDown size={24} className="rotate-180" />
+        </button>
       )}
     </div>
   );

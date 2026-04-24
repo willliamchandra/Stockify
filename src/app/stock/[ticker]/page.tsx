@@ -80,70 +80,65 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
   const rec = await getLatestRec(ticker);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-2xl font-bold">
+    <div className="space-y-4 md:space-y-6">
+      {/* Header - Fixed Mobile Layout */}
+      <div className="flex flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 md:h-14 md:w-14 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-lg md:text-xl font-bold">
             {ticker.split('.')[0]}
           </div>
           <div>
-            <h1 className="text-3xl font-bold">{ticker}</h1>
-            <p className="text-white/40">Indonesia Stock Exchange</p>
+            <h1 className="text-xl md:text-3xl font-bold leading-tight">{ticker}</h1>
+            <p className="text-[10px] md:text-sm text-white/40">IDX Indonesia</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          {rec && <SignalBadge signal={rec.signal} />}
-          <WatchlistButton ticker={ticker} />
+        <div className="flex items-center gap-2">
+          {rec && <div className="scale-75 md:scale-100 origin-right"><SignalBadge signal={rec.signal} /></div>}
+          <div className="scale-75 md:scale-100 origin-right"><WatchlistButton ticker={ticker} /></div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-[#111] border border-white/5 rounded-3xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Technical Chart</h2>
-            <div className="flex gap-4 text-xs text-white/40">
-              <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#3b82f6]" /> SMA20</span>
-              <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#f59e0b]" /> SMA50</span>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-start">
+        {/* Chart Column - Takes more space on desktop */}
+        <div className="lg:col-span-8 bg-[#111] border border-white/5 rounded-3xl p-4 md:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm md:text-lg font-semibold text-white/80">Technical Chart</h2>
+            <div className="flex gap-3 text-[10px] md:text-xs text-white/40">
+              <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" /> SMA20</span>
+              <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[#f59e0b]" /> SMA50</span>
             </div>
           </div>
-          <StockChart data={chartData} sma20={sma20Data} sma50={sma50Data} />
+          <div className="h-[300px] md:h-[400px]">
+            <StockChart data={chartData} sma20={sma20Data} sma50={sma50Data} />
+          </div>
         </div>
 
-        <div className="space-y-8">
-          <div className="bg-[#111] border border-white/5 rounded-3xl p-6">
-            <h2 className="text-xl font-semibold mb-6">Latest Analysis</h2>
+        {/* Info & Journal Column */}
+        <div className="lg:col-span-4 space-y-4 md:space-y-6 h-full">
+          <div className="bg-[#111] border border-white/5 rounded-3xl p-5 md:p-6">
+            <h2 className="text-sm md:text-lg font-semibold mb-4 text-white/80">Analysis</h2>
             {rec ? (
-              <div className="space-y-6">
-                <div className="p-4 bg-white/5 rounded-2xl">
-                  <p className="text-sm text-white/40 mb-1">Signal Confidence</p>
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500" style={{ width: `${rec.confidence}%` }} />
-                    </div>
-                    <span className="text-lg font-bold">{rec.confidence}%</span>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                    <p className="text-[10px] text-white/40 uppercase mb-1">Price</p>
+                    <p className="text-sm md:text-base font-mono">{formatCurrency(rec.price)}</p>
+                  </div>
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                    <p className="text-[10px] text-white/40 uppercase mb-1">Confidence</p>
+                    <p className="text-sm md:text-base font-bold text-emerald-400">{rec.confidence}%</p>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-white/40 uppercase mb-1">Price</p>
-                    <p className="text-lg font-mono">{formatCurrency(rec.price)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-white/40 uppercase mb-1">Target</p>
-                    <p className="text-lg font-mono text-emerald-400">{formatCurrency(rec.take_profit)}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-xs text-white/40 uppercase">Rationale</p>
-                  <p className="text-sm leading-relaxed text-white/70 italic">
+                <div className="p-4 bg-white/5 rounded-xl border border-white/5 italic">
+                  <p className="text-[10px] text-white/40 uppercase mb-2 not-italic">Rationale</p>
+                  <p className="text-xs md:text-sm text-white/70 line-clamp-3 md:line-clamp-none">
                     "{rec.explanation}"
                   </p>
                 </div>
               </div>
             ) : (
-              <p className="text-white/40 italic">No analysis data available for this stock.</p>
+              <p className="text-white/40 text-xs italic">No analysis data available.</p>
             )}
           </div>
 

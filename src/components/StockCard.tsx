@@ -34,7 +34,7 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right hidden sm:block">
+          <div className="text-right">
             <p className="text-[10px] text-white/40 uppercase">Conf.</p>
             <p className="text-xs font-mono text-white/80">{rec.confidence}%</p>
           </div>

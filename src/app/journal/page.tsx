@@ -26,8 +26,6 @@ export default function JournalPage() {
   };
 
   const deleteEntry = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this journal entry?')) return;
-    
     try {
       await fetch('/api/journal', {
         method: 'DELETE',

@@ -55,7 +55,17 @@ export default function StockChart({ data, sma20, sma50 }: StockChartProps) {
     });
     sma50Series.setData(sma50);
 
-    chart.timeScale().fitContent();
+    const isMobile = window.innerWidth < 768;
+    if (isMobile && data.length > 30) {
+      const lastDate = data[data.length - 1].time as string;
+      const firstDate = data[data.length - 30].time as string;
+      chart.timeScale().setVisibleRange({
+        from: firstDate,
+        to: lastDate,
+      });
+    } else {
+      chart.timeScale().fitContent();
+    }
 
     const handleResize = () => {
       chart.applyOptions({ width: chartContainerRef.current?.clientWidth });
