@@ -25,9 +25,11 @@ export default function StockChart({ data, sma20, sma50 }: StockChartProps) {
         horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
       },
       width: chartContainerRef.current.clientWidth,
-      height: 500,
+      height: chartContainerRef.current.clientHeight || 400,
       timeScale: {
         borderColor: 'rgba(255, 255, 255, 0.1)',
+        rightOffset: 5,
+        barSpacing: 6,
       },
     });
 
@@ -43,32 +45,35 @@ export default function StockChart({ data, sma20, sma50 }: StockChartProps) {
 
     const sma20Series = chart.addSeries(LineSeries, {
       color: '#3b82f6',
-      lineWidth: 2,
+      lineWidth: 1,
       title: 'SMA20',
     });
     sma20Series.setData(sma20);
 
     const sma50Series = chart.addSeries(LineSeries, {
       color: '#f59e0b',
-      lineWidth: 2,
+      lineWidth: 1,
       title: 'SMA50',
     });
     sma50Series.setData(sma50);
 
-    const isMobile = window.innerWidth < 768;
-    if (isMobile && data.length > 30) {
-      const lastDate = data[data.length - 1].time as string;
-      const firstDate = data[data.length - 30].time as string;
-      chart.timeScale().setVisibleRange({
-        from: firstDate,
-        to: lastDate,
-      });
-    } else {
-      chart.timeScale().fitContent();
+    // Fit content first
+    chart.timeScale().fitContent();
+
+    // On mobile, show last 30 days
+    if (window.innerWidth < 768 && data.length > 30) {
+      const last = data[data.length - 1].time;
+      const first = data[data.length - 30].time;
+      chart.timeScale().setVisibleRange({ from: first as any, to: last as any });
     }
 
     const handleResize = () => {
-      chart.applyOptions({ width: chartContainerRef.current?.clientWidth });
+      if (chartContainerRef.current) {
+        chart.applyOptions({ 
+          width: chartContainerRef.current.clientWidth,
+          height: chartContainerRef.current.clientHeight 
+        });
+      }
     };
 
     window.addEventListener('resize', handleResize);
