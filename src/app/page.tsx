@@ -1,9 +1,19 @@
 import StockCard from '@/components/StockCard';
 
+import { supabase } from '@/lib/supabase';
+
 async function getRecommendations() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/recommendations`, { cache: 'no-store' });
-  if (!res.ok) return [];
-  return res.json();
+  const { data, error } = await supabase
+    .from('recommendations')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error) {
+    console.error('Error fetching recommendations:', error);
+    return [];
+  }
+  return data || [];
 }
 
 export default async function Home() {
