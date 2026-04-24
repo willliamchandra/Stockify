@@ -69,7 +69,7 @@ export default function JournalPage() {
                         href={`/stock/${entry.ticker}`}
                         className="text-2xl font-bold hover:text-emerald-400 transition-colors"
                       >
-                        {entry.ticker}
+                        {entry.ticker.replace('.JK', '')}
                       </Link>
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                         entry.action === 'BUY' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'

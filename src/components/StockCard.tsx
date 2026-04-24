@@ -1,7 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, Info } from 'lucide-react';
 import SignalBadge from './SignalBadge';
-import { formatCurrency, formatPercent } from '@/lib/formatters';
+import { formatCurrency } from '@/lib/formatters';
 
 interface StockCardProps {
   rec: {
@@ -18,6 +20,8 @@ interface StockCardProps {
 }
 
 export default function StockCard({ rec, compact = false }: StockCardProps) {
+  const displayTicker = rec.ticker.replace('.JK', '');
+
   if (compact) {
     return (
       <Link 
@@ -26,10 +30,10 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
       >
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/5 border border-white/5 font-bold text-sm">
-            {rec.ticker.split('.')[0]}
+            {displayTicker.split('.')[0]}
           </div>
           <div>
-            <h3 className="font-bold text-white text-sm">{rec.ticker}</h3>
+            <h3 className="font-bold text-white text-sm">{displayTicker}</h3>
             <p className="text-xs text-white/40">{formatCurrency(rec.price)}</p>
           </div>
         </div>
@@ -52,7 +56,7 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
 
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h3 className="text-xl font-bold text-white mb-1">{rec.ticker}</h3>
+          <h3 className="text-xl font-bold text-white mb-1">{displayTicker}</h3>
           <div className="flex items-center gap-2">
             <span className="text-2xl font-mono text-white/90">{formatCurrency(rec.price)}</span>
           </div>

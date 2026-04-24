@@ -105,9 +105,9 @@ export default function Home() {
         </div>
         <div className="flex gap-2 py-0.5">
           {[
+            { label: 'Confidence', field: 'confidence' },
             { label: 'Name', field: 'ticker' },
             { label: 'Signal', field: 'signal' },
-            { label: 'Confidence', field: 'confidence' },
           ].map((item) => (
             <button
               key={item.field}

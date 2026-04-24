@@ -44,7 +44,7 @@ export default function JournalForm({ stock }: JournalFormProps) {
 
   return (
     <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-3xl p-6 space-y-4">
-      <h3 className="text-emerald-400 font-semibold">Save to Trade Journal</h3>
+      <h3 className="text-emerald-400 font-semibold uppercase tracking-widest text-xs">Journal Entry: {stock.ticker.replace('.JK', '')}</h3>
       
       <div className="flex gap-2 p-1 bg-black/40 rounded-xl">
         {(['BUY', 'SELL'] as const).map((item) => (

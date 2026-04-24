@@ -13,8 +13,6 @@ import SignalBadge from '@/components/SignalBadge';
 import { formatCurrency } from '@/lib/formatters';
 import { supabase } from '@/lib/supabase';
 import JournalForm from '@/components/JournalForm';
-import { Trash2 } from 'lucide-react';
-import Link from 'next/link';
 
 async function getStockData(ticker: string) {
   try {
@@ -78,6 +76,7 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
   const { ticker } = await params;
   const { chartData, sma20Data, sma50Data } = await getStockData(ticker);
   const rec = await getLatestRec(ticker);
+  const displayTicker = ticker.replace('.JK', '');
 
   return (
     <div className="space-y-4 md:space-y-6 pb-10 lg:pb-0">
@@ -85,10 +84,10 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
       <div className="flex flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 md:h-12 md:w-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-lg font-bold">
-            {ticker.split('.')[0]}
+            {displayTicker.split('.')[0]}
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold leading-tight">{ticker}</h1>
+            <h1 className="text-xl md:text-2xl font-bold leading-tight">{displayTicker}</h1>
             <p className="text-[10px] text-white/40 uppercase tracking-tighter">IDX Indonesia</p>
           </div>
         </div>
@@ -98,39 +97,39 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch">
         {/* Chart Column */}
-        <div className="lg:col-span-8 bg-[#111] border border-white/5 rounded-2xl p-4 md:p-5">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:flex-[8] bg-[#111] border border-white/5 rounded-2xl p-4 md:p-5 flex flex-col">
+          <div className="flex items-center justify-between mb-4 shrink-0">
             <h2 className="text-xs md:text-sm font-semibold text-white/60">Technical Analysis Chart</h2>
             <div className="flex gap-3 text-[10px] text-white/30">
               <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#3b82f6]" /> SMA20</span>
               <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#f59e0b]" /> SMA50</span>
             </div>
           </div>
-          <div className="h-[300px] md:h-[400px] lg:h-[450px] relative">
+          <div className="flex-1 min-h-[300px] md:min-h-[400px] lg:min-h-[450px] relative">
             <StockChart data={chartData} sma20={sma20Data} sma50={sma50Data} />
           </div>
         </div>
 
         {/* Info & Journal Column */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-[#111] border border-white/5 rounded-2xl p-5 md:p-6">
-            <h2 className="text-xs md:text-sm font-semibold mb-4 text-white/60 uppercase tracking-widest">Analysis Details</h2>
+        <div className="lg:col-span-4 lg:flex-[4] flex flex-col gap-4">
+          <div className="flex-1 bg-[#111] border border-white/5 rounded-2xl p-5 md:p-6 flex flex-col">
+            <h2 className="text-xs md:text-sm font-semibold mb-4 text-white/60 uppercase tracking-widest shrink-0">Analysis Details</h2>
             {rec ? (
-              <div className="space-y-4">
+              <div className="space-y-4 flex-1 flex flex-col justify-center">
                 <div className="grid grid-cols-3 gap-2">
                   <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-center">
                     <p className="text-[9px] text-white/30 uppercase mb-0.5">Price</p>
-                    <p className="text-xs font-mono font-bold">{formatCurrency(rec.price)}</p>
+                    <p className="text-xs font-mono font-bold text-white/80">{formatCurrency(rec.price)}</p>
                   </div>
                   <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-center">
                     <p className="text-[9px] text-white/30 uppercase mb-0.5">Entry</p>
-                    <p className="text-xs font-mono font-bold text-emerald-400">{rec.entry || 'N/A'}</p>
+                    <p className="text-xs font-mono font-bold text-white/80">{rec.entry || 'N/A'}</p>
                   </div>
                   <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-center">
                     <p className="text-[9px] text-white/30 uppercase mb-0.5">Conf.</p>
-                    <p className="text-xs font-bold text-white/80">{rec.confidence}%</p>
+                    <p className="text-xs font-bold text-emerald-400">{rec.confidence}%</p>
                   </div>
                 </div>
 
@@ -145,7 +144,7 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
                   </div>
                 </div>
                 
-                <div className="p-4 bg-white/5 rounded-xl border border-white/5 italic">
+                <div className="p-4 bg-white/5 rounded-xl border border-white/5 italic shrink-0">
                   <p className="text-[10px] text-white/30 uppercase mb-2 not-italic">Rationale</p>
                   <p className="text-xs leading-relaxed text-white/60">
                     "{rec.explanation}"
@@ -157,13 +156,15 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
             )}
           </div>
 
-          <JournalForm stock={{
-            ticker,
-            price: rec?.price || 0,
-            take_profit: rec?.take_profit,
-            stop_loss: rec?.stop_loss,
-            explanation: rec?.explanation
-          }} />
+          <div className="shrink-0">
+            <JournalForm stock={{
+              ticker,
+              price: rec?.price || 0,
+              take_profit: rec?.take_profit,
+              stop_loss: rec?.stop_loss,
+              explanation: rec?.explanation
+            }} />
+          </div>
         </div>
       </div>
     </div>
