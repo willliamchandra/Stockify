@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { TrendingUp, TrendingDown, Info } from 'lucide-react';
+import { TrendingUp, TrendingDown, Info, BookPlus, Check, RefreshCw } from 'lucide-react';
 import SignalBadge from './SignalBadge';
 import { formatCurrency } from '@/lib/formatters';
+import { useState } from 'react';
 
 interface StockCardProps {
   rec: {
@@ -20,7 +21,35 @@ interface StockCardProps {
 }
 
 export default function StockCard({ rec, compact = false }: StockCardProps) {
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const displayTicker = rec.ticker.replace('.JK', '');
+
+  const handleQuickJournal = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setLoading(true);
+    try {
+      await fetch('/api/journal', {
+        method: 'POST',
+        body: JSON.stringify({
+          ticker: rec.ticker,
+          action: rec.signal === 'HOLD' ? 'BUY' : rec.signal,
+          price: rec.price,
+          take_profit: rec.take_profit,
+          stop_loss: rec.stop_loss,
+          notes: `Quick Entry: ${rec.explanation.substring(0, 100)}...`,
+        }),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (compact) {
     return (
@@ -40,8 +69,17 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
         <div className="flex items-center gap-3">
           <div className="text-right">
             <p className="text-[10px] text-white/40 uppercase">Conf.</p>
-            <p className="text-xs font-mono text-white/80">{rec.confidence}%</p>
+            <p className="text-xs font-mono font-bold text-emerald-400">{rec.confidence}%</p>
           </div>
+          <button
+            onClick={handleQuickJournal}
+            disabled={loading || saved}
+            className={`p-2 rounded-lg border transition-all ${
+              saved ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'
+            }`}
+          >
+            {loading ? <RefreshCw size={14} className="animate-spin" /> : saved ? <Check size={14} /> : <BookPlus size={14} />}
+          </button>
           <SignalBadge signal={rec.signal} />
         </div>
       </Link>
@@ -61,7 +99,19 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
             <span className="text-2xl font-mono text-white/90">{formatCurrency(rec.price)}</span>
           </div>
         </div>
-        <SignalBadge signal={rec.signal} />
+        <div className="flex flex-col items-end gap-2">
+          <SignalBadge signal={rec.signal} />
+          <button
+            onClick={handleQuickJournal}
+            disabled={loading || saved}
+            className={`p-2.5 rounded-xl border transition-all ${
+              saved ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'
+            }`}
+            title="Quick Save to Journal"
+          >
+            {loading ? <RefreshCw size={18} className="animate-spin" /> : saved ? <Check size={18} /> : <BookPlus size={18} />}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -71,7 +121,7 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
         </div>
         <div className="space-y-1 text-right">
           <p className="text-xs text-white/40 uppercase tracking-wider">Confidence</p>
-          <p className="text-sm font-medium text-white/80">{rec.confidence}%</p>
+          <p className="text-sm font-medium text-emerald-400 font-bold">{rec.confidence}%</p>
         </div>
         <div className="space-y-1">
           <p className="text-xs text-white/40 uppercase tracking-wider">Take Profit</p>
@@ -92,7 +142,7 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
 
       <Link 
         href={`/stock/${rec.ticker}`}
-        className="block w-full py-3 text-center text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all"
+        className="block w-full py-3 text-center text-sm font-bold text-white bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all"
       >
         View Analysis & Chart
       </Link>
