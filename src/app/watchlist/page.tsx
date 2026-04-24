@@ -12,14 +12,7 @@ export default function Watchlist() {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      if (data.user) {
-        fetchWatchlist(data.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
+    fetchWatchlist('personal-user');
   }, []);
 
   const fetchWatchlist = async (userId: string) => {
@@ -49,22 +42,6 @@ export default function Watchlist() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-6">
-        <div className="p-4 bg-white/5 rounded-full text-white/20">
-          <Star size={48} />
-        </div>
-        <h1 className="text-2xl font-bold">Sign in to view your watchlist</h1>
-        <p className="text-white/40 max-w-sm">
-          Track your favorite IDX stocks and get notified of new analysis.
-        </p>
-        <button className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-white/90 transition-all">
-          Sign In
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-12">

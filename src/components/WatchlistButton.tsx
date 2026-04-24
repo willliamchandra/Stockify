@@ -10,19 +10,14 @@ interface WatchlistButtonProps {
 
 export default function WatchlistButton({ ticker }: WatchlistButtonProps) {
   const [isInWatchlist, setIsInWatchlist] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const userId = 'personal-user';
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      if (data.user) {
-        checkWatchlist(data.user.id);
-      }
-    });
+    checkWatchlist();
   }, [ticker]);
 
-  const checkWatchlist = async (userId: string) => {
+  const checkWatchlist = async () => {
     const { data } = await supabase
       .from('watchlist')
       .select('*')
@@ -31,26 +26,22 @@ export default function WatchlistButton({ ticker }: WatchlistButtonProps) {
       .single();
     
     setIsInWatchlist(!!data);
+    setLoading(false);
   };
 
   const toggleWatchlist = async () => {
-    if (!user) {
-      alert('Please sign in to manage your watchlist');
-      return;
-    }
-
     setLoading(true);
     try {
       if (isInWatchlist) {
         await fetch('/api/watchlist', {
           method: 'DELETE',
-          body: JSON.stringify({ userId: user.id, ticker }),
+          body: JSON.stringify({ userId, ticker }),
         });
         setIsInWatchlist(false);
       } else {
         await fetch('/api/watchlist', {
           method: 'POST',
-          body: JSON.stringify({ userId: user.id, ticker }),
+          body: JSON.stringify({ userId, ticker }),
         });
         setIsInWatchlist(true);
       }

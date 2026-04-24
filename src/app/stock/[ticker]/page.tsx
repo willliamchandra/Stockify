@@ -12,6 +12,9 @@ import WatchlistButton from '@/components/WatchlistButton';
 import SignalBadge from '@/components/SignalBadge';
 import { formatCurrency } from '@/lib/formatters';
 import { supabase } from '@/lib/supabase';
+import JournalForm from '@/components/JournalForm';
+import { Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
 async function getStockData(ticker: string) {
   try {
@@ -144,13 +147,13 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
             )}
           </div>
 
-          <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-3xl p-6">
-            <h3 className="text-emerald-400 font-semibold mb-2">Strategy Tip</h3>
-            <p className="text-sm text-white/60 leading-relaxed">
-              Consider entering between {rec?.entry || 'N/A'}. 
-              Always set your stop-loss to manage risk effectively in volatile markets.
-            </p>
-          </div>
+          <JournalForm stock={{
+            ticker,
+            price: rec?.price || 0,
+            take_profit: rec?.take_profit,
+            stop_loss: rec?.stop_loss,
+            explanation: rec?.explanation
+          }} />
         </div>
       </div>
     </div>

@@ -3,9 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
-
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const userId = searchParams.get('userId') || 'personal-user';
 
   const { data, error } = await supabase
     .from('watchlist')
@@ -17,9 +15,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { userId, ticker } = await request.json();
+  const { userId = 'personal-user', ticker } = await request.json();
 
-  if (!userId || !ticker) return NextResponse.json({ error: 'Missing data' }, { status: 400 });
+  if (!ticker) return NextResponse.json({ error: 'Missing data' }, { status: 400 });
 
   const { error } = await supabase
     .from('watchlist')
@@ -30,7 +28,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const { userId, ticker } = await request.json();
+  const { userId = 'personal-user', ticker } = await request.json();
 
   if (!userId || !ticker) return NextResponse.json({ error: 'Missing data' }, { status: 400 });
 

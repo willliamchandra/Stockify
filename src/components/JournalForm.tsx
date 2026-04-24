@@ -1,0 +1,86 @@
+'use client';
+
+import { useState } from 'react';
+import { Save, Check } from 'lucide-react';
+
+interface JournalFormProps {
+  stock: {
+    ticker: string;
+    price: number;
+    take_profit?: number;
+    stop_loss?: number;
+    explanation?: string;
+  };
+}
+
+export default function JournalForm({ stock }: JournalFormProps) {
+  const [action, setAction] = useState<'BUY' | 'SELL'>('BUY');
+  const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await fetch('/api/journal', {
+        method: 'POST',
+        body: JSON.stringify({
+          ticker: stock.ticker,
+          action,
+          price: stock.price,
+          take_profit: stock.take_profit,
+          stop_loss: stock.stop_loss,
+          notes: notes || stock.explanation,
+        }),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-3xl p-6 space-y-4">
+      <h3 className="text-emerald-400 font-semibold">Save to Trade Journal</h3>
+      
+      <div className="flex gap-2 p-1 bg-black/40 rounded-xl">
+        {(['BUY', 'SELL'] as const).map((item) => (
+          <button
+            key={item}
+            onClick={() => setAction(item)}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+              action === item 
+                ? item === 'BUY' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
+                : 'text-white/40 hover:text-white/60'
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+      <textarea
+        placeholder="Add your analysis or notes here..."
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-emerald-500/50 min-h-[100px] resize-none"
+      />
+
+      <button
+        onClick={handleSave}
+        disabled={loading || saved}
+        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
+          saved 
+            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+            : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+        }`}
+      >
+        {saved ? <Check size={18} /> : <Save size={18} />}
+        {saved ? 'Saved to Journal' : 'Save Action'}
+      </button>
+    </div>
+  );
+}
