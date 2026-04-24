@@ -11,6 +11,7 @@ interface StockChartProps {
 
 export default function StockChart({ data, sma20, sma50 }: StockChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<any>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -25,7 +26,7 @@ export default function StockChart({ data, sma20, sma50 }: StockChartProps) {
         horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
       },
       width: chartContainerRef.current.clientWidth,
-      height: chartContainerRef.current.clientHeight || 400,
+      height: chartContainerRef.current.clientHeight,
       timeScale: {
         borderColor: 'rgba(255, 255, 255, 0.1)',
         rightOffset: 5,
@@ -57,21 +58,21 @@ export default function StockChart({ data, sma20, sma50 }: StockChartProps) {
     });
     sma50Series.setData(sma50);
 
-    // Fit content first
     chart.timeScale().fitContent();
 
-    // On mobile, show last 30 days
     if (window.innerWidth < 768 && data.length > 30) {
       const last = data[data.length - 1].time;
       const first = data[data.length - 30].time;
       chart.timeScale().setVisibleRange({ from: first as any, to: last as any });
     }
 
+    chartRef.current = chart;
+
     const handleResize = () => {
-      if (chartContainerRef.current) {
-        chart.applyOptions({ 
+      if (chartContainerRef.current && chartRef.current) {
+        chartRef.current.applyOptions({
           width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight 
+          height: chartContainerRef.current.clientHeight,
         });
       }
     };
@@ -84,5 +85,5 @@ export default function StockChart({ data, sma20, sma50 }: StockChartProps) {
     };
   }, [data, sma20, sma50]);
 
-  return <div ref={chartContainerRef} className="w-full h-[500px]" />;
+  return <div ref={chartContainerRef} className="w-full h-full min-h-[250px]" />;
 }

@@ -62,13 +62,6 @@ export default function JournalForm({ stock }: JournalFormProps) {
         ))}
       </div>
 
-      <textarea
-        placeholder="Add your analysis or notes here..."
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-emerald-500/50 min-h-[100px] resize-none"
-      />
-
       <button
         onClick={handleSave}
         disabled={loading || saved}

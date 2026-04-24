@@ -80,74 +80,74 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
   const rec = await getLatestRec(ticker);
 
   return (
-    <div className="space-y-3 md:space-y-4 max-h-screen overflow-hidden desktop-fit">
+    <div className="space-y-4 md:space-y-6 pb-10 lg:pb-0">
       {/* Header */}
       <div className="flex flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-base md:text-lg font-bold">
+          <div className="h-10 w-10 md:h-12 md:w-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-lg font-bold">
             {ticker.split('.')[0]}
           </div>
           <div>
-            <h1 className="text-lg md:text-2xl font-bold leading-tight">{ticker}</h1>
+            <h1 className="text-xl md:text-2xl font-bold leading-tight">{ticker}</h1>
             <p className="text-[10px] text-white/40 uppercase tracking-tighter">IDX Indonesia</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {rec && <div className="scale-75 md:scale-90 origin-right"><SignalBadge signal={rec.signal} /></div>}
-          <div className="scale-75 md:scale-90 origin-right"><WatchlistButton ticker={ticker} /></div>
+          {rec && <div className="scale-90 origin-right"><SignalBadge signal={rec.signal} /></div>}
+          <div className="scale-90 origin-right"><WatchlistButton ticker={ticker} /></div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* Chart Column */}
-        <div className="lg:col-span-8 bg-[#111] border border-white/5 rounded-2xl p-3 md:p-5">
-          <div className="flex items-center justify-between mb-3">
+        <div className="lg:col-span-8 bg-[#111] border border-white/5 rounded-2xl p-4 md:p-5">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-xs md:text-sm font-semibold text-white/60">Technical Analysis Chart</h2>
             <div className="flex gap-3 text-[10px] text-white/30">
               <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#3b82f6]" /> SMA20</span>
               <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#f59e0b]" /> SMA50</span>
             </div>
           </div>
-          <div className="h-[250px] md:h-[320px] lg:h-[400px]">
+          <div className="h-[300px] md:h-[400px] lg:h-[450px] relative">
             <StockChart data={chartData} sma20={sma20Data} sma50={sma50Data} />
           </div>
         </div>
 
         {/* Info & Journal Column */}
-        <div className="lg:col-span-4 space-y-3 md:space-y-4">
-          <div className="bg-[#111] border border-white/5 rounded-2xl p-4 md:p-5">
-            <h2 className="text-xs md:text-sm font-semibold mb-3 text-white/60 uppercase tracking-widest">Analysis Details</h2>
+        <div className="lg:col-span-4 space-y-4">
+          <div className="bg-[#111] border border-white/5 rounded-2xl p-5 md:p-6">
+            <h2 className="text-xs md:text-sm font-semibold mb-4 text-white/60 uppercase tracking-widest">Analysis Details</h2>
             {rec ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-                    <p className="text-[8px] text-white/30 uppercase mb-0.5">Price</p>
+                  <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-center">
+                    <p className="text-[9px] text-white/30 uppercase mb-0.5">Price</p>
                     <p className="text-xs font-mono font-bold">{formatCurrency(rec.price)}</p>
                   </div>
-                  <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-                    <p className="text-[8px] text-white/30 uppercase mb-0.5">Entry</p>
+                  <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-center">
+                    <p className="text-[9px] text-white/30 uppercase mb-0.5">Entry</p>
                     <p className="text-xs font-mono font-bold text-emerald-400">{rec.entry || 'N/A'}</p>
                   </div>
-                  <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-                    <p className="text-[8px] text-white/30 uppercase mb-0.5">Conf.</p>
+                  <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 text-center">
+                    <p className="text-[9px] text-white/30 uppercase mb-0.5">Conf.</p>
                     <p className="text-xs font-bold text-white/80">{rec.confidence}%</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
-                    <p className="text-[8px] text-emerald-400/60 uppercase mb-0.5">Take Profit</p>
+                  <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-center">
+                    <p className="text-[9px] text-emerald-400/60 uppercase mb-0.5">Take Profit</p>
                     <p className="text-xs font-mono font-bold text-emerald-400">{formatCurrency(rec.take_profit)}</p>
                   </div>
-                  <div className="p-2 bg-rose-500/5 rounded-lg border border-rose-500/10">
-                    <p className="text-[8px] text-rose-400/60 uppercase mb-0.5">Stop Loss</p>
+                  <div className="p-3 bg-rose-500/5 rounded-xl border border-rose-500/10 text-center">
+                    <p className="text-[9px] text-rose-400/60 uppercase mb-0.5">Stop Loss</p>
                     <p className="text-xs font-mono font-bold text-rose-400">{formatCurrency(rec.stop_loss)}</p>
                   </div>
                 </div>
                 
-                <div className="p-3 bg-white/5 rounded-lg border border-white/5 italic">
-                  <p className="text-[9px] text-white/30 uppercase mb-1 not-italic">Rationale</p>
-                  <p className="text-[11px] leading-relaxed text-white/60 line-clamp-2 lg:line-clamp-3">
+                <div className="p-4 bg-white/5 rounded-xl border border-white/5 italic">
+                  <p className="text-[10px] text-white/30 uppercase mb-2 not-italic">Rationale</p>
+                  <p className="text-xs leading-relaxed text-white/60">
                     "{rec.explanation}"
                   </p>
                 </div>
@@ -157,15 +157,13 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
             )}
           </div>
 
-          <div className="scale-95 origin-top">
-            <JournalForm stock={{
-              ticker,
-              price: rec?.price || 0,
-              take_profit: rec?.take_profit,
-              stop_loss: rec?.stop_loss,
-              explanation: rec?.explanation
-            }} />
-          </div>
+          <JournalForm stock={{
+            ticker,
+            price: rec?.price || 0,
+            take_profit: rec?.take_profit,
+            stop_loss: rec?.stop_loss,
+            explanation: rec?.explanation
+          }} />
         </div>
       </div>
     </div>
