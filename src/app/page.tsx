@@ -58,7 +58,7 @@ export default function Home() {
     return sortOrder === 'asc' ? valA - valB : valB - valA;
   });
 
-  const toggleSort = (field: 'ticker' | 'confidence' | 'price' | 'signal') => {
+  const toggleSort = (field: 'ticker' | 'confidence' | 'signal') => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
