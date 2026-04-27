@@ -32,7 +32,7 @@ const TICKERS = [
   'BYAN.JK', 'PTRO.JK', 'AKRA.JK', 'BRMS.JK', 'ABMM.JK', 'ELSA.JK', 'GEMS.JK', 'TOBA.JK',
   // Infrastructure & Telecom
   'TLKM.JK', 'ASII.JK', 'ISAT.JK', 'EXCL.JK', 'JSMR.JK', 'TOWR.JK', 'TBIG.JK',
-  'BREN.JK', 'POWR.JK', 'PGE.JK',
+  'BREN.JK', 'POWR.JK',
   // Technology
   'GOTO.JK', 'BUKA.JK', 'BELI.JK', 'MTDL.JK',
   // Property & Construction
