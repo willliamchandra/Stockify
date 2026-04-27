@@ -30,7 +30,7 @@ export default function Home() {
       .from('recommendations')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(300);
 
     if (!error && data) {
       setRecommendations(data);

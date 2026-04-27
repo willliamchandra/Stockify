@@ -22,21 +22,29 @@ export interface StockRecommendation {
 
 const TICKERS = [
   // Banking
-  'BBCA.JK', 'BBRI.JK', 'BMRI.JK', 'BBNI.JK', 'BRIS.JK', 'BTPS.JK', 'BDMN.JK', 'ARTO.JK',
+  'BBCA.JK', 'BBRI.JK', 'BMRI.JK', 'BBNI.JK', 'BRIS.JK', 'BTPS.JK', 'BDMN.JK', 'ARTO.JK', 
+  'BNGA.JK', 'BJBR.JK', 'BJTM.JK', 'PNBN.JK', 'MEGA.JK',
   // Consumer & Retail
   'UNVR.JK', 'ICBP.JK', 'INDF.JK', 'AMRT.JK', 'MYOR.JK', 'CPIN.JK', 'KLBF.JK', 'ACES.JK', 'ERAA.JK', 'MAPI.JK',
+  'SIDO.JK', 'MIDI.JK', 'ROTI.JK', 'MAPA.JK', 'LPPF.JK', 'CLEO.JK', 'ULTJ.JK', 'AUTO.JK',
   // Energy & Mining
   'ADRO.JK', 'PGAS.JK', 'PTBA.JK', 'ITMG.JK', 'HRUM.JK', 'MEDC.JK', 'ANTM.JK', 'TINS.JK', 'MDKA.JK', 'MBMA.JK', 'ADMR.JK', 'PGEO.JK',
+  'BYAN.JK', 'PTRO.JK', 'AKRA.JK', 'BRMS.JK', 'ABMM.JK', 'ELSA.JK', 'GEMS.JK', 'TOBA.JK',
   // Infrastructure & Telecom
   'TLKM.JK', 'ASII.JK', 'ISAT.JK', 'EXCL.JK', 'JSMR.JK', 'TOWR.JK', 'TBIG.JK',
+  'BREN.JK', 'POWR.JK', 'PGE.JK',
   // Technology
-  'GOTO.JK', 'BUKA.JK', 'BELI.JK',
+  'GOTO.JK', 'BUKA.JK', 'BELI.JK', 'MTDL.JK',
   // Property & Construction
-  'BSDE.JK', 'PWON.JK', 'CTRA.JK', 'SMGR.JK', 'INTP.JK',
+  'BSDE.JK', 'PWON.JK', 'CTRA.JK', 'SMGR.JK', 'INTP.JK', 'SMRA.JK', 'PTPP.JK',
+  // Basic Materials
+  'BRPT.JK', 'TPIA.JK', 'INKP.JK', 'TKIM.JK', 'AMMN.JK', 'AVIA.JK', 'ESSA.JK', 'INCO.JK', 'NCKL.JK',
   // Cigarette
-  'HMSP.JK', 'GGRM.JK',
+  'HMSP.JK', 'GGRM.JK', 'WIIM.JK',
   // Healthcare
-  'MIKA.JK', 'HEAL.JK'
+  'MIKA.JK', 'HEAL.JK', 'SILO.JK', 'PRDA.JK',
+  // Transportation
+  'ASSA.JK', 'BIRD.JK', 'SMDR.JK', 'TMAS.JK'
 ];
 
 export async function analyzeStock(ticker: string): Promise<StockRecommendation | null> {
