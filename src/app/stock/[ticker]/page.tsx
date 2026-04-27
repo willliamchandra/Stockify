@@ -55,19 +55,19 @@ async function getStockData(ticker: string) {
     }));
 
     // Fetch News
-    const baseTicker = ticker.split('.')[0];
-    const searchResult = await yahooFinance.search(ticker);
+    // 1. Initial ticker news with slightly relaxed filtering
+    let news = (searchResult.news || []).filter(n => {
+      const title = n.title.toLowerCase();
+      const hasTicker = n.relatedTickers && (n.relatedTickers.includes(ticker) || n.relatedTickers.includes(baseTicker));
+      const mentionsTicker = title.includes(baseTicker.toLowerCase());
+      return hasTicker || mentionsTicker;
+    });
     
-    // 1. Initial ticker news with strict filtering
-    let news = (searchResult.news || []).filter(n => 
-      n.relatedTickers && (n.relatedTickers.includes(ticker) || n.relatedTickers.includes(baseTicker))
-    );
-    
-    // 2. Try cleaned company name for better IDX coverage
+    // 2. Try company name for better IDX coverage if news is sparse
     const quote = searchResult.quotes && searchResult.quotes[0];
     const companyName = quote ? (quote.longname || quote.shortname) : null;
     
-    if (typeof companyName === 'string' && companyName !== ticker) {
+    if (typeof companyName === 'string' && news.length < 2) {
       // Clean name: remove PT, Tbk, Persero, and parentheses
       const cleanName = companyName
         .replace(/PT\s+/i, '')

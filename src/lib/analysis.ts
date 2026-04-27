@@ -92,16 +92,19 @@ export async function analyzeStock(ticker: string): Promise<StockRecommendation 
       const baseTicker = ticker.split('.')[0];
       const searchResult = await yahooFinance.search(ticker);
       
-      // 1. Initial ticker news with strict filtering
-      let newsItems = (searchResult.news || []).filter(n => 
-        n.relatedTickers && (n.relatedTickers.includes(ticker) || n.relatedTickers.includes(baseTicker))
-      );
+      // 1. Initial ticker news with slightly relaxed filtering
+      let newsItems = (searchResult.news || []).filter(n => {
+        const title = n.title.toLowerCase();
+        const hasTicker = n.relatedTickers && (n.relatedTickers.includes(ticker) || n.relatedTickers.includes(baseTicker));
+        const mentionsTicker = title.includes(baseTicker.toLowerCase());
+        return hasTicker || mentionsTicker;
+      });
       
-      // 2. Try cleaned company name for better IDX coverage
+      // 2. Try company name for better IDX coverage if news is sparse
       const quote = searchResult.quotes && searchResult.quotes[0];
       const companyName = quote ? (quote.longname || quote.shortname) : null;
       
-      if (typeof companyName === 'string' && companyName !== ticker) {
+      if (typeof companyName === 'string' && newsItems.length < 2) {
         // Clean name: remove PT, Tbk, Persero, and parentheses
         const cleanName = companyName
           .replace(/PT\s+/i, '')
