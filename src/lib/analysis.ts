@@ -97,14 +97,22 @@ export async function analyzeStock(ticker: string): Promise<StockRecommendation 
         n.relatedTickers && (n.relatedTickers.includes(ticker) || n.relatedTickers.includes(baseTicker))
       );
       
-      // 2. Try company name for better IDX coverage if news is sparse
+      // 2. Try cleaned company name for better IDX coverage
       const quote = searchResult.quotes && searchResult.quotes[0];
       const companyName = quote ? (quote.longname || quote.shortname) : null;
       
       if (typeof companyName === 'string' && companyName !== ticker) {
-        const nameSearchResult = await yahooFinance.search(companyName);
+        // Clean name: remove PT, Tbk, Persero, and parentheses
+        const cleanName = companyName
+          .replace(/PT\s+/i, '')
+          .replace(/\s+Tbk\.?$/i, '')
+          .replace(/\s+Persero$/i, '')
+          .replace(/\(.*\)/g, '')
+          .trim();
+
+        const nameSearchResult = await yahooFinance.search(cleanName);
         if (nameSearchResult.news && nameSearchResult.news.length > 0) {
-          const firstWord = companyName.split(' ')[0].toLowerCase();
+          const firstWord = cleanName.split(' ')[0].toLowerCase();
           const nameNews = nameSearchResult.news.filter(n => {
             const title = n.title.toLowerCase();
             return title.includes(baseTicker.toLowerCase()) || title.includes(firstWord);
