@@ -87,6 +87,51 @@ export async function analyzeStock(ticker: string): Promise<StockRecommendation 
     let score = 0;
     let reasons: string[] = [];
 
+    // News Sentiment Analysis
+    try {
+      const searchResult = await yahooFinance.search(ticker);
+      if (searchResult.news && searchResult.news.length > 0) {
+        const positiveKeywords = [
+          'menguat', 'naik', 'tumbuh', 'rekor', 'laba', 'dividen', 'surplus', 'beli', 
+          'akumulasi', 'rebound', 'bullish', 'growth', 'profit', 'dividend', 'buy', 'upgrade'
+        ];
+        const negativeKeywords = [
+          'melemah', 'turun', 'anjlok', 'rugi', 'defisit', 'jual', 'koreksi', 'bearish', 
+          'krisis', 'waspada', 'tekanan', 'pessimis', 'weakens', 'decline', 'loss', 'sell', 'downgrade'
+        ];
+
+        let sentimentScore = 0;
+        let matchedPositive: string[] = [];
+        let matchedNegative: string[] = [];
+
+        searchResult.news.slice(0, 5).forEach(article => {
+          const title = article.title.toLowerCase();
+          positiveKeywords.forEach(kw => {
+            if (title.includes(kw)) {
+              sentimentScore += 10;
+              if (!matchedPositive.includes(kw)) matchedPositive.push(kw);
+            }
+          });
+          negativeKeywords.forEach(kw => {
+            if (title.includes(kw)) {
+              sentimentScore -= 10;
+              if (!matchedNegative.includes(kw)) matchedNegative.push(kw);
+            }
+          });
+        });
+
+        if (sentimentScore > 0) {
+          score += Math.min(sentimentScore, 30);
+          reasons.push(`Positive news sentiment detected (${searchResult.news[0].title})`);
+        } else if (sentimentScore < 0) {
+          score += Math.max(sentimentScore, -30);
+          reasons.push(`Negative news sentiment detected (${searchResult.news[0].title})`);
+        }
+      }
+    } catch (newsError) {
+      console.error(`Error fetching news for ${ticker}:`, newsError);
+    }
+
     // RSI Logic
     if (latestRsi < 30) {
       score += 30;
