@@ -55,6 +55,9 @@ async function getStockData(ticker: string) {
     }));
 
     // Fetch News
+    const baseTicker = ticker.split('.')[0];
+    const searchResult = await yahooFinance.search(ticker);
+    
     // 1. Initial ticker news with slightly relaxed filtering
     let news = (searchResult.news || []).filter(n => {
       const title = n.title.toLowerCase();
