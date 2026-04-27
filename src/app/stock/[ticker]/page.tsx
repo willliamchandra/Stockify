@@ -32,32 +32,61 @@ async function getStockData(ticker: string) {
       q.close !== null && q.close !== undefined
     );
   
-  const prices = history.map(h => h.close as number);
-  const sma20 = SMA.calculate({ values: prices, period: 20 });
-  const sma50 = SMA.calculate({ values: prices, period: 50 });
+    const prices = history.map(h => h.close as number);
+    const sma20 = SMA.calculate({ values: prices, period: 20 });
+    const sma50 = SMA.calculate({ values: prices, period: 50 });
 
-  const chartData = history.map(h => ({
-    time: h.date.toISOString().split('T')[0],
-    open: h.open as number,
-    high: h.high as number,
-    low: h.low as number,
-    close: h.close as number,
-  }));
+    const chartData = history.map(h => ({
+      time: h.date.toISOString().split('T')[0],
+      open: h.open as number,
+      high: h.high as number,
+      low: h.low as number,
+      close: h.close as number,
+    }));
 
-  const sma20Data = sma20.map((val, i) => ({
-    time: history[i + 19].date.toISOString().split('T')[0],
-    value: val,
-  }));
+    const sma20Data = sma20.map((val, i) => ({
+      time: history[i + 19].date.toISOString().split('T')[0],
+      value: val,
+    }));
 
-  const sma50Data = sma50.map((val, i) => ({
-    time: history[i + 49].date.toISOString().split('T')[0],
-    value: val,
-  }));
+    const sma50Data = sma50.map((val, i) => ({
+      time: history[i + 49].date.toISOString().split('T')[0],
+      value: val,
+    }));
 
-    return { chartData, sma20Data, sma50Data };
+    // Fetch News
+    const baseTicker = ticker.split('.')[0];
+    const searchResult = await yahooFinance.search(ticker);
+    
+    // 1. Initial ticker news with strict filtering
+    let news = (searchResult.news || []).filter(n => 
+      n.relatedTickers && (n.relatedTickers.includes(ticker) || n.relatedTickers.includes(baseTicker))
+    );
+    
+    // 2. Try company name for better IDX coverage if news is sparse
+    const quote = searchResult.quotes && searchResult.quotes[0];
+    const companyName = quote ? (quote.longname || quote.shortname) : null;
+    
+    if (companyName && companyName !== ticker) {
+      const nameSearchResult = await yahooFinance.search(companyName);
+      if (nameSearchResult.news && nameSearchResult.news.length > 0) {
+        const firstWord = companyName.split(' ')[0].toLowerCase();
+        const nameNews = nameSearchResult.news.filter(n => {
+          const title = n.title.toLowerCase();
+          return title.includes(baseTicker.toLowerCase()) || title.includes(firstWord);
+        });
+
+        const existingTitles = new Set(news.map(n => n.title));
+        nameNews.forEach(n => {
+          if (!existingTitles.has(n.title)) news.push(n);
+        });
+      }
+    }
+
+    return { chartData, sma20Data, sma50Data, news };
   } catch (error) {
     console.error(`Error fetching data for ${ticker}:`, error);
-    return { chartData: [], sma20Data: [], sma50Data: [] };
+    return { chartData: [], sma20Data: [], sma50Data: [], news: [] };
   }
 }
 
@@ -74,7 +103,7 @@ async function getLatestRec(ticker: string) {
 
 export default async function StockDetail({ params }: { params: Promise<{ ticker: string }> }) {
   const { ticker } = await params;
-  const { chartData, sma20Data, sma50Data } = await getStockData(ticker);
+  const { chartData, sma20Data, sma50Data, news } = await getStockData(ticker);
   const rec = await getLatestRec(ticker);
   const displayTicker = ticker.replace('.JK', '');
 
@@ -98,17 +127,53 @@ export default async function StockDetail({ params }: { params: Promise<{ ticker
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-        {/* Chart Column */}
-        <div className="lg:flex-[8] bg-[#111] border border-white/5 rounded-2xl p-4 md:p-5 flex flex-col">
-          <div className="flex items-center justify-between mb-4 shrink-0">
-            <h2 className="text-xs md:text-sm font-semibold text-white/60">Technical Analysis Chart</h2>
-            <div className="flex gap-3 text-[10px] text-white/30">
-              <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#3b82f6]" /> SMA20</span>
-              <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#f59e0b]" /> SMA50</span>
+        {/* Main Column */}
+        <div className="lg:flex-[8] flex flex-col gap-4">
+          {/* Chart Section */}
+          <div className="bg-[#111] border border-white/5 rounded-2xl p-4 md:p-5 flex flex-col">
+            <div className="flex items-center justify-between mb-4 shrink-0">
+              <h2 className="text-xs md:text-sm font-semibold text-white/60">Technical Analysis Chart</h2>
+              <div className="flex gap-3 text-[10px] text-white/30">
+                <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#3b82f6]" /> SMA20</span>
+                <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-[#f59e0b]" /> SMA50</span>
+              </div>
+            </div>
+            <div className="flex-1 min-h-[300px] md:min-h-[400px] lg:min-h-[450px] relative">
+              <StockChart data={chartData} sma20={sma20Data} sma50={sma50Data} />
             </div>
           </div>
-          <div className="flex-1 min-h-[300px] md:min-h-[400px] lg:min-h-[450px] relative">
-            <StockChart data={chartData} sma20={sma20Data} sma50={sma50Data} />
+
+          {/* News Section */}
+          <div className="bg-[#111] border border-white/5 rounded-2xl p-5 md:p-6">
+            <h2 className="text-xs md:text-sm font-semibold mb-6 text-white/60 uppercase tracking-widest">Latest News</h2>
+            {news && news.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {news.slice(0, 4).map((article: any, i: number) => (
+                  <a 
+                    key={i} 
+                    href={article.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex flex-col p-4 bg-white/5 border border-white/5 hover:border-white/10 rounded-xl transition-all group"
+                  >
+                    <p className="text-[10px] text-emerald-400 font-bold mb-2 uppercase tracking-wide">{article.publisher}</p>
+                    <h3 className="text-sm font-bold text-white/90 group-hover:text-white transition-colors line-clamp-2 mb-3">
+                      {article.title}
+                    </h3>
+                    <div className="mt-auto flex items-center justify-between">
+                      <span className="text-[10px] text-white/30">
+                        {new Date(article.providerPublishTime * 1000).toLocaleDateString()}
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">Read More →</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div className="p-10 border border-dashed border-white/10 rounded-2xl text-center">
+                <p className="text-white/40 text-xs italic">No news found for this stock.</p>
+              </div>
+            )}
           </div>
         </div>
 

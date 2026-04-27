@@ -89,43 +89,71 @@ export async function analyzeStock(ticker: string): Promise<StockRecommendation 
 
     // News Sentiment Analysis
     try {
+      const baseTicker = ticker.split('.')[0];
       const searchResult = await yahooFinance.search(ticker);
-      if (searchResult.news && searchResult.news.length > 0) {
+      
+      // 1. Initial ticker news with strict filtering
+      let newsItems = (searchResult.news || []).filter(n => 
+        n.relatedTickers && (n.relatedTickers.includes(ticker) || n.relatedTickers.includes(baseTicker))
+      );
+      
+      // 2. Try company name for better IDX coverage if news is sparse
+      const quote = searchResult.quotes && searchResult.quotes[0];
+      const companyName = quote ? (quote.longname || quote.shortname) : null;
+      
+      if (companyName && companyName !== ticker) {
+        const nameSearchResult = await yahooFinance.search(companyName);
+        if (nameSearchResult.news && nameSearchResult.news.length > 0) {
+          const firstWord = companyName.split(' ')[0].toLowerCase();
+          const nameNews = nameSearchResult.news.filter(n => {
+            const title = n.title.toLowerCase();
+            return title.includes(baseTicker.toLowerCase()) || title.includes(firstWord);
+          });
+
+          // Merge and deduplicate news
+          const existingTitles = new Set(newsItems.map(n => n.title));
+          nameNews.forEach(n => {
+            if (!existingTitles.has(n.title)) newsItems.push(n);
+          });
+        }
+      }
+
+      if (newsItems.length > 0) {
         const positiveKeywords = [
           'menguat', 'naik', 'tumbuh', 'rekor', 'laba', 'dividen', 'surplus', 'beli', 
-          'akumulasi', 'rebound', 'bullish', 'growth', 'profit', 'dividend', 'buy', 'upgrade'
+          'akumulasi', 'rebound', 'bullish', 'growth', 'profit', 'dividend', 'buy', 'upgrade', 'positif'
         ];
         const negativeKeywords = [
           'melemah', 'turun', 'anjlok', 'rugi', 'defisit', 'jual', 'koreksi', 'bearish', 
-          'krisis', 'waspada', 'tekanan', 'pessimis', 'weakens', 'decline', 'loss', 'sell', 'downgrade'
+          'krisis', 'waspada', 'tekanan', 'pessimis', 'weakens', 'decline', 'loss', 'sell', 'downgrade', 'negatif'
         ];
 
         let sentimentScore = 0;
-        let matchedPositive: string[] = [];
-        let matchedNegative: string[] = [];
+        let matchedArticles: string[] = [];
 
-        searchResult.news.slice(0, 5).forEach(article => {
+        newsItems.slice(0, 8).forEach(article => {
           const title = article.title.toLowerCase();
+          let articleScore = 0;
+          
           positiveKeywords.forEach(kw => {
-            if (title.includes(kw)) {
-              sentimentScore += 10;
-              if (!matchedPositive.includes(kw)) matchedPositive.push(kw);
-            }
+            if (title.includes(kw)) articleScore += 10;
           });
           negativeKeywords.forEach(kw => {
-            if (title.includes(kw)) {
-              sentimentScore -= 10;
-              if (!matchedNegative.includes(kw)) matchedNegative.push(kw);
-            }
+            if (title.includes(kw)) articleScore -= 10;
           });
+
+          if (articleScore !== 0) {
+            sentimentScore += articleScore;
+            matchedArticles.push(article.title);
+          }
         });
 
         if (sentimentScore > 0) {
           score += Math.min(sentimentScore, 30);
-          reasons.push(`Positive news sentiment detected (${searchResult.news[0].title})`);
+          reasons.push(`Positive news sentiment: ${matchedArticles[0] || newsItems[0].title}`);
         } else if (sentimentScore < 0) {
           score += Math.max(sentimentScore, -30);
-          reasons.push(`Negative news sentiment detected (${searchResult.news[0].title})`);
+          reasons.push(`Negative news sentiment: ${matchedArticles[0] || newsItems[0].title}`);
         }
       }
     } catch (newsError) {
