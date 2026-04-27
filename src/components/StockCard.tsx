@@ -55,33 +55,42 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
     return (
       <Link 
         href={`/stock/${rec.ticker}`}
-        className="group flex items-center justify-between p-4 bg-[#111] border border-white/5 hover:border-white/10 rounded-2xl transition-all"
+        className="group flex flex-col p-4 bg-[#111] border border-white/5 hover:border-white/10 rounded-2xl transition-all gap-2"
       >
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/5 border border-white/5 font-bold text-sm">
-            {displayTicker.split('.')[0]}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/5 border border-white/5 font-bold text-sm">
+              {displayTicker.split('.')[0]}
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-sm">{displayTicker}</h3>
+              <p className="text-xs text-white/40">{formatCurrency(rec.price)}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-white text-sm">{displayTicker}</h3>
-            <p className="text-xs text-white/40">{formatCurrency(rec.price)}</p>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-[10px] text-white/40 uppercase">Conf.</p>
+              <p className="text-xs font-mono font-bold text-emerald-400">{rec.confidence}%</p>
+            </div>
+            <button
+              onClick={handleQuickJournal}
+              disabled={loading || saved}
+              className={`p-2 rounded-lg border transition-all ${
+                saved ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'
+              }`}
+            >
+              {loading ? <RefreshCw size={14} className="animate-spin" /> : saved ? <Check size={14} /> : <BookPlus size={14} />}
+            </button>
+            <SignalBadge signal={rec.signal} />
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-[10px] text-white/40 uppercase">Conf.</p>
-            <p className="text-xs font-mono font-bold text-emerald-400">{rec.confidence}%</p>
+        {rec.explanation && (
+          <div className="pt-2 border-t border-white/5">
+            <p className="text-[10px] text-white/50 leading-relaxed italic line-clamp-1">
+              {rec.explanation}
+            </p>
           </div>
-          <button
-            onClick={handleQuickJournal}
-            disabled={loading || saved}
-            className={`p-2 rounded-lg border transition-all ${
-              saved ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'
-            }`}
-          >
-            {loading ? <RefreshCw size={14} className="animate-spin" /> : saved ? <Check size={14} /> : <BookPlus size={14} />}
-          </button>
-          <SignalBadge signal={rec.signal} />
-        </div>
+        )}
       </Link>
     );
   }
@@ -123,9 +132,9 @@ export default function StockCard({ rec, compact = false }: StockCardProps) {
         </div>
       </div>
 
-      <div className="flex items-start gap-2 p-3 bg-white/5 rounded-xl mb-6">
-        <Info size={14} className="text-white/40 mt-1 shrink-0" />
-        <p className="text-xs text-white/60 leading-relaxed italic line-clamp-2">
+      <div className="flex items-start gap-2 p-3 bg-white/5 rounded-xl mb-6 border border-white/5">
+        <Info size={14} className="text-emerald-500/70 mt-1 shrink-0" />
+        <p className="text-xs text-white/70 leading-relaxed italic">
           {rec.explanation}
         </p>
       </div>
