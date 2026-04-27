@@ -67,7 +67,7 @@ async function getStockData(ticker: string) {
     const quote = searchResult.quotes && searchResult.quotes[0];
     const companyName = quote ? (quote.longname || quote.shortname) : null;
     
-    if (companyName && companyName !== ticker) {
+    if (typeof companyName === 'string' && companyName !== ticker) {
       const nameSearchResult = await yahooFinance.search(companyName);
       if (nameSearchResult.news && nameSearchResult.news.length > 0) {
         const firstWord = companyName.split(' ')[0].toLowerCase();
